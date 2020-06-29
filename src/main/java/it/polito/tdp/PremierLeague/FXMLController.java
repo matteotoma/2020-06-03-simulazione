@@ -5,9 +5,12 @@
 package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.PremierLeague.model.Adiacenza;
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.model.Player;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,17 +47,44 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	Double x;
+    	try {
+    		x = Double.parseDouble(this.txtGoals.getText());
+    	} catch(NumberFormatException e) {
+    		txtResult.appendText("Devi inserire un numero decimale!\n");
+    		return;
+    	}
+    	model.creaGrafo(x);
+    	txtResult.appendText(String.format("Grafo creato con %d vertici e %d archi!\n", model.nVertici(), model.nArchi()));
+    	this.btnTopPlayer.setDisable(false);
     }
 
     @FXML
     void doDreamTeam(ActionEvent event) {
-
+    	txtResult.clear();
+    	Integer k;
+    	try {
+    		k = Integer.parseInt(this.txtK.getText());
+    	} catch(NumberFormatException e) {
+    		txtResult.appendText("Devi inserire un numero intero!\n");
+    		return;
+    	}
+    	List<Player> list = model.getDreamTeam(k);
+    	txtResult.appendText(String.format("Dream Team di %d giocatori con max grado titolarita %d!\n", k, model.getMaxGradoTitolarita()));
+    	for(Player p: list)
+    		txtResult.appendText(p.toString()+"\n");
     }
 
     @FXML
     void doTopPlayer(ActionEvent event) {
-
+    	txtResult.clear();
+    	this.btnDreamTeam.setDisable(false);
+    	List<Adiacenza> list = model.getTopPlayer();
+    	txtResult.appendText(String.format("Top player: %s\n", list.get(0).getP1()));
+    	txtResult.appendText("Giocatori battuti: \n");
+    	for(Adiacenza a: list)
+    		txtResult.appendText(a.getP2()+" "+a.getPeso()+"\n");
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -70,5 +100,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.btnDreamTeam.setDisable(true);
+    	this.btnTopPlayer.setDisable(true);
     }
 }
